@@ -69,5 +69,15 @@
   "pageNotFound": "Такой страницы нет",
   "@pageNotFound": {
     "description": "Адрес, которого нет среди маршрутов"
+  },
+  "typeBug": "Насекомое",
+  "typeFire": "Огонь",
+  "typeFlying": "Полёт",
+  "typeGrass": "Трава",
+  "typeNormal": "Обычный",
+  "typePoison": "Яд",
+  "typeWater": "Вода",
+  "@typeGrass": {
+    "description": "Тип записи. В данных он приходит идентификатором grass, на экран идёт эта подпись"
   }
 }

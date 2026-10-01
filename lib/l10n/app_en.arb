@@ -17,5 +17,12 @@
   "sectionEvolution": "Evolution",
   "abilityHidden": "{name} · hidden",
   "detailNotFound": "No record “{id}” in the catalog",
-  "pageNotFound": "No such page"
+  "pageNotFound": "No such page",
+  "typeBug": "Bug",
+  "typeFire": "Fire",
+  "typeFlying": "Flying",
+  "typeGrass": "Grass",
+  "typeNormal": "Normal",
+  "typePoison": "Poison",
+  "typeWater": "Water"
 }
