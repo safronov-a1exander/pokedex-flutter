@@ -10,4 +10,12 @@ final class PokemonRepository implements IPokemonRepository {
 
   @override
   Future<List<PokemonModel>> getPokemons() async => mockPokemons;
+
+  @override
+  Future<PokemonModel?> getPokemon(int id) async {
+    for (final pokemon in mockPokemons) {
+      if (pokemon.id == id) return pokemon;
+    }
+    return null;
+  }
 }

@@ -7,4 +7,8 @@ import 'package:pokedex/features/pokemon/domain/pokemon_model.dart';
 /// сеть, интерфейс и все, кто его вызывает, не изменятся.
 abstract interface class IPokemonRepository {
   Future<List<PokemonModel>> getPokemons();
+
+  /// null, если записи с таким номером нет. В вебе номер приходит из адресной
+  /// строки, а туда можно ввести что угодно.
+  Future<PokemonModel?> getPokemon(int id);
 }

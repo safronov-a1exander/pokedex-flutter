@@ -8,5 +8,14 @@
   "statDefense": "Defense",
   "statSpecialAttack": "Sp. Attack",
   "statSpecialDefense": "Sp. Defense",
-  "statSpeed": "Speed"
+  "statSpeed": "Speed",
+  "detailHeight": "Height: {height} m",
+  "detailWeight": "Weight: {weight} kg",
+  "detailBaseXp": "Base experience: {xp}",
+  "sectionStats": "Base stats",
+  "sectionAbilities": "Abilities",
+  "sectionEvolution": "Evolution",
+  "abilityHidden": "{name} · hidden",
+  "detailNotFound": "No record “{id}” in the catalog",
+  "pageNotFound": "No such page"
 }

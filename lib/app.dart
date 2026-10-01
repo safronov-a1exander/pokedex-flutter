@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pokedex/common/navigation/app_router.dart';
 import 'package:pokedex/features/pokemon/data/pokemon_repository.dart';
 import 'package:pokedex/features/pokemon/domain/i_pokemon_repository.dart';
 import 'package:pokedex/features/pokemon/presentation/bloc/list/pokemon_list_cubit.dart';
-import 'package:pokedex/features/pokemon/presentation/view/pokemon_list_screen.dart';
 import 'package:pokedex/l10n/app_localizations.dart';
 
 /// Корень приложения. Его запускают все таргеты: web, desktop, Android.
@@ -31,13 +31,14 @@ class App extends StatelessWidget {
       child: MultiBlocProvider(
         providers: [
           // Cubit списка создаётся один раз и живёт, пока работает
-          // приложение. Экраны находят его через context.
+          // приложение. Поэтому список не теряется, пока открыта деталь.
           BlocProvider(
             create: (context) =>
                 PokemonListCubit(context.read<IPokemonRepository>())..load(),
           ),
         ],
-        child: MaterialApp(
+        child: MaterialApp.router(
+          routerConfig: AppRouter.router,
           // Заголовок вкладки браузера тоже подпись, поэтому он из ARB.
           onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
           debugShowCheckedModeBanner: false,
@@ -46,7 +47,6 @@ class App extends StatelessWidget {
           locale: locale,
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
-          home: const PokemonListScreen(),
         ),
       ),
     );

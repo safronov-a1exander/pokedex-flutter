@@ -18,5 +18,56 @@
   "statDefense": "Защита",
   "statSpecialAttack": "Спец. атака",
   "statSpecialDefense": "Спец. защита",
-  "statSpeed": "Скорость"
+  "statSpeed": "Скорость",
+  "detailHeight": "Рост: {height} м",
+  "@detailHeight": {
+    "placeholders": {
+      "height": {
+        "type": "double",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "detailWeight": "Вес: {weight} кг",
+  "@detailWeight": {
+    "placeholders": {
+      "weight": {
+        "type": "double",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "detailBaseXp": "Базовый опыт: {xp}",
+  "@detailBaseXp": {
+    "placeholders": {
+      "xp": {
+        "type": "int"
+      }
+    }
+  },
+  "sectionStats": "Характеристики",
+  "sectionAbilities": "Способности",
+  "sectionEvolution": "Эволюция",
+  "abilityHidden": "{name} · скрытая",
+  "@abilityHidden": {
+    "description": "Способность, которая в игре достаётся редко",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "detailNotFound": "Записи «{id}» в каталоге нет",
+  "@detailNotFound": {
+    "description": "Номер из адресной строки не нашёлся",
+    "placeholders": {
+      "id": {
+        "type": "int"
+      }
+    }
+  },
+  "pageNotFound": "Такой страницы нет",
+  "@pageNotFound": {
+    "description": "Адрес, которого нет среди маршрутов"
+  }
 }
