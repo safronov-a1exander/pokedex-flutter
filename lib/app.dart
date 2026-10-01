@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pokedex/common/navigation/app_router.dart';
+import 'package:pokedex/common/theme/app_theme.dart';
+import 'package:pokedex/common/theme/theme_cubit.dart';
 import 'package:pokedex/features/pokemon/data/pokemon_repository.dart';
 import 'package:pokedex/features/pokemon/domain/i_pokemon_repository.dart';
 import 'package:pokedex/features/pokemon/presentation/bloc/list/pokemon_list_cubit.dart';
@@ -36,17 +38,23 @@ class App extends StatelessWidget {
             create: (context) =>
                 PokemonListCubit(context.read<IPokemonRepository>())..load(),
           ),
+          // Тема относится ко всему приложению, поэтому её Cubit тоже здесь.
+          BlocProvider(create: (_) => ThemeCubit()),
         ],
-        child: MaterialApp.router(
-          routerConfig: AppRouter.router,
-          // Заголовок вкладки браузера тоже подпись, поэтому он из ARB.
-          onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
-          debugShowCheckedModeBanner: false,
-          // Шрифт лежит в assets/fonts: одинаковый на всех ОС и без сети.
-          theme: ThemeData(fontFamily: 'Roboto'),
-          locale: locale,
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
+        // BlocBuilder пересобирает MaterialApp, когда меняется тема.
+        child: BlocBuilder<ThemeCubit, ThemeMode>(
+          builder: (context, themeMode) => MaterialApp.router(
+            routerConfig: AppRouter.router,
+            // Заголовок вкладки браузера тоже подпись, поэтому он из ARB.
+            onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.light,
+            darkTheme: AppTheme.dark,
+            themeMode: themeMode,
+            locale: locale,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+          ),
         ),
       ),
     );
