@@ -18,4 +18,14 @@ final class PokemonRepository implements IPokemonRepository {
     }
     return null;
   }
+
+  @override
+  Future<List<PokemonModel>> searchPokemons(String query) async {
+    final needle = query.trim().toLowerCase();
+    if (needle.isEmpty) return mockPokemons;
+    return [
+      for (final pokemon in mockPokemons)
+        if (pokemon.name.contains(needle)) pokemon,
+    ];
+  }
 }

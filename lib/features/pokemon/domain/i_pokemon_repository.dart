@@ -11,4 +11,7 @@ abstract interface class IPokemonRepository {
   /// null, если записи с таким номером нет. В вебе номер приходит из адресной
   /// строки, а туда можно ввести что угодно.
   Future<PokemonModel?> getPokemon(int id);
+
+  /// Записи, в имени которых есть [query]. Пустой запрос значит «все записи».
+  Future<List<PokemonModel>> searchPokemons(String query);
 }

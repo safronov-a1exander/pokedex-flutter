@@ -24,5 +24,7 @@
   "typeGrass": "Grass",
   "typeNormal": "Normal",
   "typePoison": "Poison",
-  "typeWater": "Water"
+  "typeWater": "Water",
+  "searchHint": "Search by name",
+  "actionClearSearch": "Clear search"
 }

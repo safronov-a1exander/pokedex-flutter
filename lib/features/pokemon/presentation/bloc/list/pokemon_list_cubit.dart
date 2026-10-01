@@ -20,4 +20,13 @@ class PokemonListCubit extends Cubit<PokemonListState> {
     if (isClosed) return;
     emit(state.copyWith(items: items));
   }
+
+  /// Запрос попадает в состояние сразу, список обновляется, когда ответит
+  /// репозиторий.
+  Future<void> search(String query) async {
+    emit(state.copyWith(query: query));
+    final items = await _repository.searchPokemons(query);
+    if (isClosed) return;
+    emit(state.copyWith(items: items));
+  }
 }
