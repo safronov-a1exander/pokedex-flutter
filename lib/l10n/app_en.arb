@@ -1,0 +1,13 @@
+{
+  "@@locale": "en",
+  "appTitle": "Pokédex",
+  "startHint": "Empty. The list goes here — you are the one writing it. The state already holds {count, plural, one{{count} record} other{{count} records}}.",
+  "actionToggleTheme": "Toggle theme",
+  "pokemonNumber": "#{number}",
+  "statHp": "HP",
+  "statAttack": "Attack",
+  "statDefense": "Defense",
+  "statSpecialAttack": "Sp. Attack",
+  "statSpecialDefense": "Sp. Defense",
+  "statSpeed": "Speed"
+}

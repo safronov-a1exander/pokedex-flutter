@@ -1,0 +1,31 @@
+{
+  "@@locale": "ru",
+  "appTitle": "Покедекс",
+  "@appTitle": {
+    "description": "Заголовок в шапке и во вкладке браузера"
+  },
+  "startHint": "Пусто. Здесь будет список — его пишете вы. В состоянии уже {count, plural, one{{count} запись} few{{count} записи} other{{count} записей}}.",
+  "@startHint": {
+    "description": "Стартовый экран шаблона: сколько записей уже лежит в состоянии",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "actionToggleTheme": "Переключить тему",
+  "pokemonNumber": "#{number}",
+  "@pokemonNumber": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "statHp": "Здоровье",
+  "statAttack": "Атака",
+  "statDefense": "Защита",
+  "statSpecialAttack": "Спец. атака",
+  "statSpecialDefense": "Спец. защита",
+  "statSpeed": "Скорость"
+}
