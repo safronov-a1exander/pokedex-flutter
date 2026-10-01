@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pokedex/features/pokemon/data/pokemon_repository.dart';
+import 'package:pokedex/features/pokemon/domain/i_pokemon_repository.dart';
 import 'package:pokedex/features/pokemon/presentation/bloc/list/pokemon_list_cubit.dart';
 import 'package:pokedex/features/pokemon/presentation/view/pokemon_list_screen.dart';
 import 'package:pokedex/l10n/app_localizations.dart';
 
 /// Корень приложения. Его запускают все таргеты: web, desktop, Android.
+///
+/// Здесь собираются зависимости. Только app.dart знает, какая реализация
+/// стоит за [IPokemonRepository]. Остальные получают её через
+/// `context.read<IPokemonRepository>()`.
 ///
 /// [locale] задаёт язык интерфейса. Без него язык берётся из системы, в
 /// браузере из настроек браузера.
@@ -15,20 +21,33 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // BlocProvider создаёт Cubit один раз и закрывает его, когда сам уходит
-    // из дерева. Всё, что ниже, получает Cubit через context.
-    return BlocProvider(
-      create: (context) => PokemonListCubit()..load(),
-      child: MaterialApp(
-        // Заголовок вкладки браузера тоже подпись, поэтому он из ARB.
-        onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
-        debugShowCheckedModeBanner: false,
-        // Шрифт лежит в assets/fonts: одинаковый на всех ОС и без сети.
-        theme: ThemeData(fontFamily: 'Roboto'),
-        locale: locale,
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        home: const PokemonListScreen(),
+    return MultiRepositoryProvider(
+      providers: [
+        // Тип указан явно: репозиторий ищут по интерфейсу, а не по классу.
+        RepositoryProvider<IPokemonRepository>(
+          create: (_) => const PokemonRepository(),
+        ),
+      ],
+      child: MultiBlocProvider(
+        providers: [
+          // Cubit списка создаётся один раз и живёт, пока работает
+          // приложение. Экраны находят его через context.
+          BlocProvider(
+            create: (context) =>
+                PokemonListCubit(context.read<IPokemonRepository>())..load(),
+          ),
+        ],
+        child: MaterialApp(
+          // Заголовок вкладки браузера тоже подпись, поэтому он из ARB.
+          onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
+          debugShowCheckedModeBanner: false,
+          // Шрифт лежит в assets/fonts: одинаковый на всех ОС и без сети.
+          theme: ThemeData(fontFamily: 'Roboto'),
+          locale: locale,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: const PokemonListScreen(),
+        ),
       ),
     );
   }
