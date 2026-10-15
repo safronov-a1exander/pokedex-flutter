@@ -24,6 +24,13 @@ class PokemonImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final url = pokemon.imageUrl;
+    // Картинки нет на сервере или она не загрузилась: вместо неё значок.
+    final placeholder = Icon(
+      Icons.catching_pokemon,
+      size: spriteSize * 0.6,
+      color: pokemon.accent,
+    );
     return Container(
       width: size,
       height: size,
@@ -32,7 +39,14 @@ class PokemonImage extends StatelessWidget {
         color: pokemon.accent.withValues(alpha: backgroundAlpha),
         shape: BoxShape.circle,
       ),
-      child: Image.asset(pokemon.sprite, width: spriteSize, height: spriteSize),
+      child: url == null
+          ? placeholder
+          : Image.network(
+              url,
+              width: spriteSize,
+              height: spriteSize,
+              errorBuilder: (_, _, _) => placeholder,
+            ),
     );
   }
 }

@@ -80,6 +80,31 @@
   "@typeGrass": {
     "description": "Тип записи. В данных он приходит идентификатором grass, на экран идёт эта подпись"
   },
+  "typeFighting": "Боевой",
+  "typeGround": "Земля",
+  "typeRock": "Камень",
+  "typeGhost": "Призрак",
+  "typeSteel": "Сталь",
+  "typeElectric": "Электро",
+  "typePsychic": "Психический",
+  "typeIce": "Лёд",
+  "typeDragon": "Дракон",
+  "typeDark": "Тьма",
+  "typeFairy": "Фея",
   "searchHint": "Поиск по имени",
-  "actionClearSearch": "Очистить поиск"
+  "actionClearSearch": "Очистить поиск",
+  "searchNothingFound": "Ничего не найдено",
+  "errorNoConnection": "Нет связи с сервером. Проверьте интернет",
+  "errorTimeout": "Сервер долго не отвечает",
+  "errorNotFound": "Такой записи нет",
+  "errorServer": "Ошибка сервера ({code})",
+  "@errorServer": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "errorBadResponse": "Сервер прислал непонятный ответ",
+  "actionRetry": "Повторить"
 }

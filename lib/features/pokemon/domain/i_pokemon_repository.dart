@@ -1,17 +1,20 @@
+import 'package:pokedex/features/pokemon/domain/pokemon_details_model.dart';
 import 'package:pokedex/features/pokemon/domain/pokemon_model.dart';
 
 /// Откуда берутся записи каталога.
 ///
-/// Cubit и Bloc знают только этот интерфейс, реализация лежит в data. Методы
-/// возвращают Future, хотя моки отвечают сразу: когда на их место встанет
-/// сеть, интерфейс и все, кто его вызывает, не изменятся.
+/// Cubit и Bloc знают только этот интерфейс, реализация лежит в data. Все
+/// методы при ошибке бросают LoadException из `common/network`.
 abstract interface class IPokemonRepository {
-  Future<List<PokemonModel>> getPokemons();
+  /// Страница списка: [limit] записей, начиная с [offset].
+  Future<List<PokemonModel>> getPokemons({
+    required int offset,
+    required int limit,
+  });
 
-  /// null, если записи с таким номером нет. В вебе номер приходит из адресной
-  /// строки, а туда можно ввести что угодно.
-  Future<PokemonModel?> getPokemon(int id);
+  /// Запись со всем, что нужно детали. Нет такой записи: NotFoundException.
+  Future<PokemonDetailsModel> getDetails(int id);
 
-  /// Записи, в имени которых есть [query]. Пустой запрос значит «все записи».
+  /// Записи, в имени которых есть [query].
   Future<List<PokemonModel>> searchPokemons(String query);
 }

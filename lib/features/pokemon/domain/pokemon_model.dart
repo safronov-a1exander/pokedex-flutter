@@ -1,41 +1,38 @@
 import 'package:pokedex/features/pokemon/domain/pokemon_type.dart';
 
-/// Одна запись каталога.
+/// Одна запись каталога: то, что нужно и карточке списка, и детали.
 ///
-/// Данные лежат здесь в том виде, в каком их отдаёт PokéAPI: имя строчными
+/// Данные лежат в том виде, в каком их отдаёт PokéAPI: имя строчными
 /// (`bulbasaur`), рост в дециметрах, вес в гектограммах. Как это показать на
-/// экране, решают расширения в `presentation/utils`. Импортов Flutter здесь
-/// нет: модель не знает, чем её рисуют.
+/// экране, решают расширения в `presentation/utils`. Импортов Flutter и
+/// аннотаций JSON здесь нет: модель не знает ни как её рисуют, ни откуда она
+/// пришла.
 final class PokemonModel {
   const PokemonModel({
     required this.id,
     required this.name,
-    required this.genus,
+    required this.imageUrl,
     required this.types,
     required this.heightDm,
     required this.weightHg,
     required this.baseExperience,
     required this.abilities,
     required this.stats,
-    required this.evolutionChain,
-    required this.flavorText,
   });
 
   final int id;
   final String name;
 
-  /// Вид, например «Seed Pokémon». В API есть только на английском.
-  final String genus;
+  /// У части записей картинки на сервере нет.
+  final String? imageUrl;
   final List<PokemonType> types;
   final int heightDm;
   final int weightHg;
-  final int baseExperience;
+
+  /// У части записей сервер его не знает.
+  final int? baseExperience;
   final List<AbilityModel> abilities;
   final List<StatModel> stats;
-
-  /// Номера всей цепочки эволюции, включая саму запись. У bulbasaur это 1, 2, 3.
-  final List<int> evolutionChain;
-  final String flavorText;
 }
 
 /// Способность. Скрытая способность в игре встречается редко, поэтому она

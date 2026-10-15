@@ -1,17 +1,46 @@
+import 'package:pokedex/common/network/load_exception.dart';
 import 'package:pokedex/features/pokemon/domain/pokemon_model.dart';
 
-/// Состояние экрана списка: всё, что нужно нарисовать, одним объектом.
+/// Состояние экрана списка.
 ///
-/// Класс неизменяемый. Новое состояние создаётся через [copyWith], поля
-/// старого не меняются. Cubit не отправит экрану тот же самый объект второй
-/// раз, поэтому правка полей на месте до экрана не дойдёт.
-final class PokemonListState {
-  const PokemonListState({this.query = '', this.items = const []});
+/// Класс sealed: «грузится», «есть данные» и «ошибка» не могут оказаться
+/// правдой одновременно, и экран обязан разобрать все три варианта. Запрос
+/// поиска есть в каждом варианте.
+sealed class PokemonListState {
+  const PokemonListState({required this.query});
 
-  /// Текст в поле поиска. Пустая строка значит, что поиск не задан.
+  /// Текст поиска. Пустая строка значит, что поиск не задан.
   final String query;
+}
+
+final class PokemonListLoading extends PokemonListState {
+  const PokemonListLoading({required super.query});
+}
+
+final class PokemonListLoaded extends PokemonListState {
+  const PokemonListLoaded({
+    required super.query,
+    required this.items,
+    required this.hasMore,
+    this.isLoadingMore = false,
+    this.loadMoreError,
+  });
+
   final List<PokemonModel> items;
 
-  PokemonListState copyWith({String? query, List<PokemonModel>? items}) =>
-      PokemonListState(query: query ?? this.query, items: items ?? this.items);
+  /// На сервере есть ещё страницы. У результатов поиска страниц нет.
+  final bool hasMore;
+
+  /// Догружается следующая страница: внизу списка индикатор.
+  final bool isLoadingMore;
+
+  /// Следующая страница не загрузилась. Уже загруженные записи остаются на
+  /// экране, внизу кнопка «Повторить».
+  final LoadException? loadMoreError;
+}
+
+final class PokemonListFailure extends PokemonListState {
+  const PokemonListFailure({required super.query, required this.error});
+
+  final LoadException error;
 }

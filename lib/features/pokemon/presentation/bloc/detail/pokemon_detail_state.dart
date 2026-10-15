@@ -1,4 +1,5 @@
-import 'package:pokedex/features/pokemon/domain/pokemon_model.dart';
+import 'package:pokedex/common/network/load_exception.dart';
+import 'package:pokedex/features/pokemon/domain/pokemon_details_model.dart';
 
 /// Состояние экрана детали.
 ///
@@ -13,18 +14,23 @@ final class PokemonDetailLoading extends PokemonDetailState {
 }
 
 final class PokemonDetailLoaded extends PokemonDetailState {
-  const PokemonDetailLoaded(this.pokemon, {required this.evolution});
+  const PokemonDetailLoaded(this.details);
 
-  final PokemonModel pokemon;
-
-  /// Вся цепочка эволюции по порядку, включая саму запись.
-  final List<PokemonModel> evolution;
+  final PokemonDetailsModel details;
 }
 
-/// Записи с таким номером нет. В вебе адрес /pokemon/999 можно ввести руками,
-/// и для него нужен свой экран.
+/// Записи с таким номером нет: сервер ответил 404. В вебе адрес /pokemon/99999
+/// можно ввести руками, и для него нужен свой экран. Повторять тут нечего.
 final class PokemonDetailNotFound extends PokemonDetailState {
   const PokemonDetailNotFound(this.id);
 
   final int id;
+}
+
+/// Загрузка упала по любой другой причине. Можно повторить.
+final class PokemonDetailFailure extends PokemonDetailState {
+  const PokemonDetailFailure(this.id, this.error);
+
+  final int id;
+  final LoadException error;
 }

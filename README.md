@@ -1,9 +1,56 @@
-# Pokédex · каркас на Flutter
+# Pokédex на Flutter
 
-Шаблон к практическому занятию ПЗ2 «Каркас на Flutter», курс кроссплатформенной разработки.
+Шаблон курса кроссплатформенной разработки. Теги `w2-*` — каркас на моках с ПЗ2, тег `l3-network` — те же
+экраны на данных из [PokéAPI](https://pokeapi.co/), пример к ЛР3.
+
+Flutter 3.47.3, Dart 3.13.3, flutter_bloc 9.1.1, go_router 18.0.1, dio 5.11.1, json_serializable 6.14.1.
+
+## Тег l3-network · сеть вместо моков
+
+```bash
+git switch -c my-l3 l3-network
+flutter pub get
+flutter run -d chrome
+```
+
+Что поменялось против `w2-end`: [сравнение на GitHub](https://github.com/safronov-a1exander/pokedex-flutter/compare/w2-end...l3-network).
+Экраны остались прежними, к ним добавились загрузка, ошибка с «Повторить» и подгрузка страниц.
+
+Цепочка: **API-клиент → датасорс → репозиторий → Cubit/Bloc → экран.**
+
+| Файл | Что делает |
+|---|---|
+| `lib/common/network/dio_client.dart` | Создаёт Dio: базовый адрес, таймауты, лог запросов в debug |
+| `lib/common/network/load_exception.dart` | Свои ошибки: нет сети, таймаут, 404, ошибка сервера, непонятный ответ |
+| `features/pokemon/data/api/pokemon_api.dart` | API-клиент: один метод на один адрес, возвращает DTO |
+| `features/pokemon/data/dto/` | DTO на `json_serializable`, рядом сгенерированные `.g.dart` |
+| `features/pokemon/data/data_sources/` | Интерфейс датасорса и сетевая реализация: `DioException` превращается в `LoadException` |
+| `features/pokemon/data/mappers/pokemon_mapper.dart` | DTO → модель приложения |
+| `features/pokemon/data/pokemon_repository.dart` | Репозиторий на датасорсе. Запросы страницы и детали идут параллельно |
+| `lib/app.dart` | Сборка цепочки: `PokemonRepository(NetworkPokemonDataSource(PokemonApi(DioClient.create())))` |
+
+После правки DTO код генерируется заново:
+
+```bash
+dart run build_runner build --delete-conflicting-outputs
+```
+
+Какие адреса PokéAPI зовёт приложение:
+
+| Экран | Запросы |
+|---|---|
+| Список | `/pokemon?offset=N&limit=20`, потом 20 запросов `/pokemon/{имя}` параллельно: в странице нет типов и картинок |
+| Деталь | `/pokemon/{id}` и `/pokemon-species/{id}` параллельно, потом `/evolution-chain/{n}` и записи цепочки |
+| Поиск | Один раз `/pokemon?limit=<все>` за списком имён, дальше поиск в памяти и до 20 запросов `/pokemon/{имя}` |
+
+Ответ `/pokemon/{id}` весит около 280 КБ, из них приложению нужны пара килобайт. В браузере этот JSON
+разбирается в главном потоке.
+
+Дальше в README описан каркас ПЗ2, он не изменился.
+
+# Каркас на Flutter · ПЗ2
+
 Это тот же покедекс, что на ПЗ1 был на Compose Multiplatform: те же двадцать записей и те же шаги, но на Flutter.
-
-Flutter 3.47.3, Dart 3.13.3, flutter_bloc 9.1.1, go_router 18.0.1.
 
 ## До пары
 
@@ -38,8 +85,8 @@ development with C++», для Android нужны SDK и эмулятор. Эт�
 В терминале `flutter run`: `r` применяет правку и сохраняет состояние (hot reload), `R` перезапускает приложение
 с нуля (hot restart), `q` выход.
 
-Картинки, данные и шрифт лежат в репозитории, поэтому приложение работает без сети. Флаг `--no-web-resources-cdn`
-отдаёт и движок отрисовки локально.
+На тегах `w2-*` картинки, данные и шрифт лежат в репозитории, и приложение работает без сети. На `l3-network`
+данные и картинки приходят с сервера. Флаг `--no-web-resources-cdn` отдаёт движок отрисовки локально.
 
 ## Шаги и догон
 
@@ -165,5 +212,5 @@ git grep -nE "Text\(\s*'" -- lib
 
 ## Откуда данные и картинки
 
-Записи и картинки взяты из CMP-шаблона ПЗ1 (`composeResources/drawable`), туда они загружены из
+На `l3-network` всё приходит из PokéAPI. На тегах `w2-*` записи и картинки взяты из CMP-шаблона ПЗ1 (`composeResources/drawable`), туда они загружены из
 [PokéAPI](https://pokeapi.co/). Покемоны являются торговой маркой Nintendo и Game Freak, используются в учебных целях.

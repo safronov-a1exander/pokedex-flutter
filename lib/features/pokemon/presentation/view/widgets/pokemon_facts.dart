@@ -19,6 +19,7 @@ class PokemonFacts extends StatelessWidget {
     final style = theme.textTheme.titleSmall?.copyWith(
       color: theme.colorScheme.onSurfaceVariant,
     );
+    final baseExperience = pokemon.baseExperience;
     return Wrap(
       alignment: WrapAlignment.center,
       spacing: 24,
@@ -26,7 +27,9 @@ class PokemonFacts extends StatelessWidget {
       children: [
         Text(l10n.detailHeight(pokemon.heightM), style: style),
         Text(l10n.detailWeight(pokemon.weightKg), style: style),
-        Text(l10n.detailBaseXp(pokemon.baseExperience), style: style),
+        // Опыта у части записей на сервере нет. Тогда строки нет, а не «0».
+        if (baseExperience != null)
+          Text(l10n.detailBaseXp(baseExperience), style: style),
       ],
     );
   }

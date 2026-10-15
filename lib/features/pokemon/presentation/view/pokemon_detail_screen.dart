@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pokedex/common/widgets/app_scaffold.dart';
+import 'package:pokedex/common/widgets/load_error_view.dart';
 import 'package:pokedex/features/pokemon/domain/i_pokemon_repository.dart';
-import 'package:pokedex/features/pokemon/domain/pokemon_model.dart';
+import 'package:pokedex/features/pokemon/domain/pokemon_details_model.dart';
 import 'package:pokedex/features/pokemon/presentation/bloc/detail/pokemon_detail_bloc.dart';
 import 'package:pokedex/features/pokemon/presentation/bloc/detail/pokemon_detail_event.dart';
 import 'package:pokedex/features/pokemon/presentation/bloc/detail/pokemon_detail_state.dart';
@@ -41,8 +42,17 @@ class PokemonDetailScreen extends StatelessWidget {
             PokemonDetailNotFound(:final id) => Center(
               child: Text(AppLocalizations.of(context).detailNotFound(id)),
             ),
-            PokemonDetailLoaded(:final pokemon, :final evolution) =>
-              _DetailContent(pokemon: pokemon, evolution: evolution),
+            PokemonDetailFailure(:final id, :final error) => Center(
+              child: LoadErrorView(
+                error: error,
+                onRetry: () => context.read<PokemonDetailBloc>().add(
+                  PokemonDetailRetried(id),
+                ),
+              ),
+            ),
+            PokemonDetailLoaded(:final details) => _DetailContent(
+              details: details,
+            ),
           },
         ),
       ),
@@ -51,15 +61,15 @@ class PokemonDetailScreen extends StatelessWidget {
 }
 
 class _DetailContent extends StatelessWidget {
-  const _DetailContent({required this.pokemon, required this.evolution});
+  const _DetailContent({required this.details});
 
-  final PokemonModel pokemon;
-  final List<PokemonModel> evolution;
+  final PokemonDetailsModel details;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
+    final pokemon = details.pokemon;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Center(
@@ -78,7 +88,7 @@ class _DetailContent extends StatelessWidget {
               ),
               Text(pokemon.displayName, style: theme.textTheme.headlineMedium),
               Text(
-                pokemon.genus,
+                details.genus,
                 style: theme.textTheme.titleSmall?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -86,7 +96,7 @@ class _DetailContent extends StatelessWidget {
               TypeRow(types: pokemon.types),
               PokemonFacts(pokemon: pokemon),
               Text(
-                pokemon.flavorText,
+                details.flavorText,
                 textAlign: TextAlign.center,
                 style: theme.textTheme.bodyLarge,
               ),
@@ -100,7 +110,7 @@ class _DetailContent extends StatelessWidget {
               Section(title: l10n.sectionAbilities),
               AbilityList(abilities: pokemon.abilities),
               Section(title: l10n.sectionEvolution),
-              EvolutionRow(stages: evolution, currentId: pokemon.id),
+              EvolutionRow(stages: details.evolution, currentId: pokemon.id),
             ],
           ),
         ),

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pokedex/common/navigation/app_router.dart';
+import 'package:pokedex/common/network/dio_client.dart';
 import 'package:pokedex/common/theme/app_theme.dart';
 import 'package:pokedex/common/theme/theme_cubit.dart';
+import 'package:pokedex/features/pokemon/data/api/pokemon_api.dart';
+import 'package:pokedex/features/pokemon/data/data_sources/network_pokemon_data_source.dart';
 import 'package:pokedex/features/pokemon/data/pokemon_repository.dart';
 import 'package:pokedex/features/pokemon/domain/i_pokemon_repository.dart';
 import 'package:pokedex/features/pokemon/presentation/bloc/list/pokemon_list_cubit.dart';
@@ -26,8 +29,12 @@ class App extends StatelessWidget {
     return MultiRepositoryProvider(
       providers: [
         // Тип указан явно: репозиторий ищут по интерфейсу, а не по классу.
+        // Цепочка собирается здесь: Dio → API-клиент → датасорс →
+        // репозиторий. Dio один на всё приложение.
         RepositoryProvider<IPokemonRepository>(
-          create: (_) => const PokemonRepository(),
+          create: (_) => PokemonRepository(
+            NetworkPokemonDataSource(PokemonApi(DioClient.create())),
+          ),
         ),
       ],
       child: MultiBlocProvider(

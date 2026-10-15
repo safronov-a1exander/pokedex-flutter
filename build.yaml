@@ -1,0 +1,11 @@
+# Настройки кодогенерации json_serializable для всех DTO.
+targets:
+  $default:
+    builders:
+      json_serializable:
+        options:
+          # Приложение только читает данные, toJson не нужен.
+          create_to_json: false
+          # Ответ не той формы даёт CheckedFromJsonException с именем поля,
+          # а не голый TypeError. Датасорс превращает его в BadResponseException.
+          checked: true

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pokedex/common/theme/image_sources.dart';
+import 'package:pokedex/common/theme/app_colors.dart';
 import 'package:pokedex/features/pokemon/domain/pokemon_model.dart';
 import 'package:pokedex/features/pokemon/presentation/utils/pokemon_type_format.dart';
 
@@ -20,10 +20,8 @@ extension PokemonFormat on PokemonModel {
   /// В API вес в гектограммах.
   double get weightKg => weightHg / 10;
 
-  String get sprite => ImageSources.sprite(id);
-
   /// Цвет первого типа: им красятся подложка картинки и полосы характеристик.
-  Color get accent => types.first.color;
+  Color get accent => types.firstOrNull?.color ?? AppColors.typeNormal;
 }
 
 extension AbilityFormat on AbilityModel {

@@ -1,5 +1,5 @@
 name: pokedex
-description: "Покедекс — шаблон воркшопа ПЗ2 «Каркас на Flutter»"
+description: "Покедекс — шаблон курса «Кроссплатформенная разработка», Flutter"
 publish_to: 'none'
 
 version: 1.0.0+1
@@ -16,21 +16,21 @@ dependencies:
   go_router: ^18.0.1
   intl: ^0.20.3
   cupertino_icons: ^1.0.9
+  dio: ^5.11.1
+  json_annotation: ^4.12.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+  build_runner: ^2.16.2
+  json_serializable: ^6.14.1
 
 flutter:
   uses-material-design: true
   # Код AppLocalizations генерируется из lib/l10n/*.arb при pub get и сборке.
   generate: true
-  # Спрайты лежат в репозитории, а не тянутся по сети: на паре сеть —
-  # не то, на что стоит закладываться.
-  assets:
-    - assets/sprites/
-  # Шрифт тоже локально. Без него web-сборка при первом кадре идёт за Roboto
+  # Картинки теперь приходят с сервера. Шрифт остаётся локально. Без него web-сборка при первом кадре идёт за Roboto
   # на fonts.gstatic.com, а без сети кириллица не нарисуется. Файлы взяты из
   # кэша Flutter SDK (bin/cache/artifacts/material_fonts), лицензия Apache 2.0.
   fonts:
