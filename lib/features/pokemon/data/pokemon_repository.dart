@@ -1,23 +1,27 @@
 import 'dart:async';
 
+import 'package:pokedex/common/network/load_exception.dart';
+import 'package:pokedex/features/pokemon/data/data_sources/i_local_pokemon_data_source.dart';
 import 'package:pokedex/features/pokemon/data/data_sources/i_pokemon_data_source.dart';
 import 'package:pokedex/features/pokemon/data/dto/pokemon_dto.dart';
 import 'package:pokedex/features/pokemon/data/dto/pokemon_species_dto.dart';
 import 'package:pokedex/features/pokemon/data/mappers/pokemon_mapper.dart';
+import 'package:pokedex/features/pokemon/data/mappers/stored_pokemon_mapper.dart';
 import 'package:pokedex/features/pokemon/domain/i_pokemon_repository.dart';
 import 'package:pokedex/features/pokemon/domain/pokemon_details_model.dart';
 import 'package:pokedex/features/pokemon/domain/pokemon_model.dart';
+import 'package:pokedex/features/pokemon/domain/pokemon_page_model.dart';
 
-/// Репозиторий на сети. В ЛР2 здесь были моки, интерфейс с тех пор не
-/// изменился.
+/// Репозиторий на двух датасорсах: сетевом и локальном.
 ///
-/// Репозиторий берёт DTO у датасорса и отдаёт наверх только модели
-/// приложения. Ошибки датасорса уже переведены в LoadException, их репозиторий
-/// пропускает наверх как есть.
+/// Репозиторий берёт DTO у датасорсов и отдаёт наверх только модели
+/// приложения. Где взять данные, решает он: Cubit про кэш не знает, он видит
+/// только флаг [PokemonPageModel.fromCache].
 final class PokemonRepository implements IPokemonRepository {
-  PokemonRepository(this._dataSource);
+  PokemonRepository(this._network, this._local);
 
-  final IPokemonDataSource _dataSource;
+  final IPokemonDataSource _network;
+  final ILocalPokemonDataSource _local;
 
   /// Имена всех записей для поиска. Загружаются при первом поиске и живут в
   /// памяти, пока работает приложение.
@@ -26,14 +30,39 @@ final class PokemonRepository implements IPokemonRepository {
   static const int _searchLimit = 20;
 
   @override
-  Future<List<PokemonModel>> getPokemons({
+  Future<PokemonPageModel> getPokemons({
     required int offset,
     required int limit,
   }) async {
-    final page = await _dataSource.getPokemonPage(offset: offset, limit: limit);
-    // В странице только имена. Типы и картинку отдаёт адрес каждой записи,
-    // поэтому за страницей идут ещё [limit] запросов, все сразу.
-    return _loadAll([for (final item in page.results) item.name]);
+    try {
+      final page = await _network.getPokemonPage(offset: offset, limit: limit);
+      // В странице только имена. Типы и картинку отдаёт адрес каждой записи,
+      // поэтому за страницей идут ещё [limit] запросов, все сразу.
+      final items = await _loadAll([
+        for (final item in page.results) item.name,
+      ]);
+      // Сеть ответила: сохраняем страницу на случай, когда сети не будет.
+      // Каждую страницу отдельно: до конца списка можно и не долистать.
+      await _local.savePage(
+        offset: offset,
+        limit: limit,
+        items: [for (final item in items) item.toStored()],
+      );
+      return PokemonPageModel(items: items, fromCache: false);
+    } on LoadException catch (error) {
+      // Кэш нужен, только когда сеть не ответила. Ошибку сервера и 404 им не
+      // прикрываем: сервер ответил, и ответ надо показать.
+      if (error is! NoConnectionException && error is! TimeoutLoadException) {
+        rethrow;
+      }
+      final cached = await _local.getPage(offset: offset, limit: limit);
+      // Сохранённого нет: экран покажет ту же ошибку, что и без кэша.
+      if (cached == null) rethrow;
+      return PokemonPageModel(
+        items: [for (final item in cached) item.toModel()],
+        fromCache: true,
+      );
+    }
   }
 
   @override
@@ -44,8 +73,8 @@ final class PokemonRepository implements IPokemonRepository {
       // Запись и её вид не зависят друг от друга: два запроса идут
       // параллельно, ждём оба.
       (pokemon, species) = await (
-        _dataSource.getPokemon('$id'),
-        _dataSource.getSpecies(id),
+        _network.getPokemon('$id'),
+        _network.getSpecies(id),
       ).wait;
     } on ParallelWaitError<
       (PokemonDto?, PokemonSpeciesDto?),
@@ -57,7 +86,7 @@ final class PokemonRepository implements IPokemonRepository {
       Error.throwWithStackTrace(first.error, first.stackTrace);
     }
 
-    final chain = await _dataSource.getEvolutionChain(species.evolutionChainId);
+    final chain = await _network.getEvolutionChain(species.evolutionChainId);
     final evolution = await _loadAll([
       for (final stageId in chain.speciesIds) '$stageId',
     ]);
@@ -81,8 +110,8 @@ final class PokemonRepository implements IPokemonRepository {
   }
 
   Future<List<String>> _loadAllNames() async {
-    final first = await _dataSource.getPokemonPage(offset: 0, limit: 1);
-    final all = await _dataSource.getPokemonPage(offset: 0, limit: first.count);
+    final first = await _network.getPokemonPage(offset: 0, limit: 1);
+    final all = await _network.getPokemonPage(offset: 0, limit: first.count);
     return [for (final item in all.results) item.name];
   }
 
@@ -90,7 +119,7 @@ final class PokemonRepository implements IPokemonRepository {
   /// от .wait у пары, пробрасывает исходную ошибку первого упавшего запроса.
   Future<List<PokemonModel>> _loadAll(Iterable<String> idsOrNames) async {
     final dtos = await Future.wait([
-      for (final idOrName in idsOrNames) _dataSource.getPokemon(idOrName),
+      for (final idOrName in idsOrNames) _network.getPokemon(idOrName),
     ]);
     return [for (final dto in dtos) dto.toModel()];
   }

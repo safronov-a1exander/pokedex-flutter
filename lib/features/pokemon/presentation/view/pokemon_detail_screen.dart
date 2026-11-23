@@ -11,6 +11,7 @@ import 'package:pokedex/features/pokemon/presentation/utils/pokemon_format.dart'
 import 'package:pokedex/features/pokemon/presentation/utils/stat_format.dart';
 import 'package:pokedex/features/pokemon/presentation/view/widgets/ability_list.dart';
 import 'package:pokedex/features/pokemon/presentation/view/widgets/evolution_row.dart';
+import 'package:pokedex/features/pokemon/presentation/view/widgets/favorite_button.dart';
 import 'package:pokedex/features/pokemon/presentation/view/widgets/pokemon_facts.dart';
 import 'package:pokedex/features/pokemon/presentation/view/widgets/pokemon_image.dart';
 import 'package:pokedex/features/pokemon/presentation/view/widgets/section.dart';
@@ -33,6 +34,18 @@ class PokemonDetailScreen extends StatelessWidget {
           PokemonDetailBloc(context.read<IPokemonRepository>())
             ..add(PokemonDetailOpened(id)),
       child: AppScaffold(
+        actions: [
+          // Звезда появляется, когда запись загружена: в избранное кладём
+          // запись целиком, а не только номер.
+          BlocBuilder<PokemonDetailBloc, PokemonDetailState>(
+            builder: (context, state) => switch (state) {
+              PokemonDetailLoaded(:final details) => FavoriteButton(
+                pokemon: details.pokemon,
+              ),
+              _ => const SizedBox.shrink(),
+            },
+          ),
+        ],
         body: BlocBuilder<PokemonDetailBloc, PokemonDetailState>(
           // switch по sealed-состоянию: забыть вариант не даст компилятор.
           builder: (context, state) => switch (state) {

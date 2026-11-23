@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pokedex/common/network/load_exception.dart';
 import 'package:pokedex/features/pokemon/domain/i_pokemon_repository.dart';
+import 'package:pokedex/features/pokemon/domain/pokemon_page_model.dart';
 import 'package:pokedex/features/pokemon/presentation/bloc/list/pokemon_list_state.dart';
 
 /// Состояние экрана списка меняется только здесь.
@@ -52,6 +53,7 @@ class PokemonListCubit extends Cubit<PokemonListState> {
         items: current.items,
         hasMore: true,
         isLoadingMore: true,
+        fromCache: current.fromCache,
       ),
     );
     try {
@@ -64,8 +66,9 @@ class PokemonListCubit extends Cubit<PokemonListState> {
       emit(
         PokemonListLoaded(
           query: current.query,
-          items: [...current.items, ...next],
-          hasMore: next.length == _pageSize,
+          items: [...current.items, ...next.items],
+          hasMore: next.items.length == _pageSize,
+          fromCache: current.fromCache || next.fromCache,
         ),
       );
     } on LoadException catch (error) {
@@ -76,6 +79,7 @@ class PokemonListCubit extends Cubit<PokemonListState> {
           items: current.items,
           hasMore: true,
           loadMoreError: error,
+          fromCache: current.fromCache,
         ),
       );
     }
@@ -84,17 +88,23 @@ class PokemonListCubit extends Cubit<PokemonListState> {
   Future<void> _load(String query) async {
     emit(PokemonListLoading(query: query));
     try {
-      final items = query.isEmpty
-          ? await _repository.getPokemons(offset: 0, limit: _pageSize)
-          : await _repository.searchPokemons(query);
+      final PokemonPageModel page;
+      if (query.isEmpty) {
+        page = await _repository.getPokemons(offset: 0, limit: _pageSize);
+      } else {
+        // У поиска кэша нет: без сети он покажет ошибку.
+        final found = await _repository.searchPokemons(query);
+        page = PokemonPageModel(items: found, fromCache: false);
+      }
       // Пока ждали ответ, Cubit могли закрыть, а пользователь мог ввести
       // новый запрос. Тогда этот ответ уже никому не нужен.
       if (isClosed || state.query != query) return;
       emit(
         PokemonListLoaded(
           query: query,
-          items: items,
-          hasMore: query.isEmpty && items.length == _pageSize,
+          items: page.items,
+          hasMore: query.isEmpty && page.items.length == _pageSize,
+          fromCache: page.fromCache,
         ),
       );
     } on LoadException catch (error) {

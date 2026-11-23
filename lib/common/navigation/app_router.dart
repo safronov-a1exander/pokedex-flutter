@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pokedex/common/widgets/app_scaffold.dart';
+import 'package:pokedex/features/pokemon/presentation/view/favorites_screen.dart';
 import 'package:pokedex/features/pokemon/presentation/view/pokemon_detail_screen.dart';
 import 'package:pokedex/features/pokemon/presentation/view/pokemon_list_screen.dart';
 import 'package:pokedex/l10n/app_localizations.dart';
@@ -9,6 +10,7 @@ import 'package:pokedex/l10n/app_localizations.dart';
 /// проекту. Переход из виджета: `context.push(AppRoutes.detail(id))`.
 abstract final class AppRoutes {
   static const String list = '/';
+  static const String favorites = '/favorites';
   static String detail(int id) => '/pokemon/$id';
 }
 
@@ -36,6 +38,11 @@ abstract final class AppRouter {
           pageBuilder: (context, state) =>
               _page(state, const PokemonListScreen()),
           routes: [
+            GoRoute(
+              path: 'favorites',
+              pageBuilder: (context, state) =>
+                  _page(state, const FavoritesScreen()),
+            ),
             // Вложенный маршрут: если открыть /pokemon/3 по ссылке, под
             // деталью всё равно лежит список, и стрелка «назад» есть.
             GoRoute(

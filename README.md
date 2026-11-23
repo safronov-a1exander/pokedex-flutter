@@ -1,9 +1,45 @@
 # Pokédex на Flutter
 
 Шаблон курса кроссплатформенной разработки. Теги `w2-*` — каркас на моках с ПЗ2, тег `l3-network` — те же
-экраны на данных из [PokéAPI](https://pokeapi.co/), пример к ЛР3.
+экраны на данных из [PokéAPI](https://pokeapi.co/), пример к ЛР3, тег `l6-storage` — хранилище, офлайн и
+избранное, пример к ЛР6.
 
-Flutter 3.47.3, Dart 3.13.3, flutter_bloc 9.1.1, go_router 18.0.1, dio 5.11.1, json_serializable 6.14.1.
+Flutter 3.47.3, Dart 3.13.3, flutter_bloc 9.1.1, go_router 18.0.1, dio 5.11.1, json_serializable 6.14.1,
+shared_preferences 2.5.6.
+
+## Тег l6-storage · хранилище на устройстве
+
+```bash
+git switch -c my-l6 l6-storage
+flutter pub get
+flutter run -d chrome --web-port 8080
+```
+
+`--web-port` нужен для браузера: без него порт каждый раз новый, а у нового адреса своё пустое хранилище.
+
+Что поменялось против `l3-network`: [сравнение на GitHub](https://github.com/safronov-a1exander/pokedex-flutter/compare/l3-network...l6-storage).
+
+| Что делаю | Что вижу |
+|---|---|
+| Включаю тёмную тему, перезагружаю страницу | Тема тёмная с первого кадра |
+| На детали жму звезду, открываю звезду в шапке списка | Запись в избранном, после перезагрузки тоже |
+| Открываю с сетью, потом F12 → Network → Offline и перезагружаю | Тот же список и плашка «Показаны сохранённые данные» |
+| Без сети открываю избранное | Названия и типы, а не номера |
+| Без сети и без сохранённого (F12 → Application → Clear site data) | Ошибка с «Повторить», как в ЛР3 |
+
+| Файл | Что делает |
+|---|---|
+| `lib/main.dart` | Читает настройки до `runApp`, иначе первый кадр со светлой темой |
+| `lib/common/settings/settings_storage.dart` | Тема в `SharedPreferencesWithCache`: прочитали при старте, дальше чтение из памяти |
+| `features/pokemon/data/data_sources/local_pokemon_data_source.dart` | Страницы списка и избранное в `SharedPreferencesAsync`, JSON-строкой под одним ключом |
+| `features/pokemon/data/dto/stored_pokemon_dto.dart` | Формат записи в хранилище. Свой, а не ответ сервера |
+| `features/pokemon/data/mappers/stored_pokemon_mapper.dart` | Модель → хранилище и обратно |
+| `features/pokemon/data/pokemon_repository.dart` | Сеть ответила: сохраняет страницу. Нет сети или таймаут: читает сохранённую |
+| `features/pokemon/data/favorites_repository.dart` | Избранное целиком, без сети |
+| `features/pokemon/presentation/bloc/favorites/favorites_cubit.dart` | Избранное в корне: звезда на детали и экран избранного видят одно состояние |
+
+В браузере всё лежит в `localStorage`: F12 → Application → Local Storage → `http://localhost:8080`, ключи
+`theme_mode`, `favorites`, `page_0_20`.
 
 ## Тег l3-network · сеть вместо моков
 

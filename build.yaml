@@ -4,7 +4,8 @@ targets:
     builders:
       json_serializable:
         options:
-          # Приложение только читает данные, toJson не нужен.
+          # Ответ сервера приложение только читает, toJson ему не нужен. DTO
+          # хранилища включают toJson у себя: @JsonSerializable(createToJson: true).
           create_to_json: false
           # Ответ не той формы даёт CheckedFromJsonException с именем поля,
           # а не голый TypeError. Датасорс превращает его в BadResponseException.

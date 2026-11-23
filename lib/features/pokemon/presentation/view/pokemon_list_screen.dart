@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:pokedex/common/navigation/app_router.dart';
 import 'package:pokedex/common/widgets/app_scaffold.dart';
 import 'package:pokedex/common/widgets/load_error_view.dart';
 import 'package:pokedex/features/pokemon/presentation/bloc/list/pokemon_list_cubit.dart';
 import 'package:pokedex/features/pokemon/presentation/bloc/list/pokemon_list_state.dart';
+import 'package:pokedex/features/pokemon/presentation/view/widgets/cache_banner.dart';
 import 'package:pokedex/features/pokemon/presentation/view/widgets/pokemon_card.dart';
 import 'package:pokedex/features/pokemon/presentation/view/widgets/search_field.dart';
 import 'package:pokedex/l10n/app_localizations.dart';
@@ -17,11 +20,24 @@ class PokemonListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final cubit = context.read<PokemonListCubit>();
     return AppScaffold(
+      actions: [
+        IconButton(
+          onPressed: () => context.push(AppRoutes.favorites),
+          tooltip: AppLocalizations.of(context).actionOpenFavorites,
+          icon: const Icon(Icons.star),
+        ),
+      ],
       body: Column(
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
             child: SearchField(onChanged: cubit.search),
+          ),
+          // Плашка видна, только когда список прочитан из хранилища.
+          BlocSelector<PokemonListCubit, PokemonListState, bool>(
+            selector: (state) => state is PokemonListLoaded && state.fromCache,
+            builder: (context, fromCache) =>
+                fromCache ? const CacheBanner() : const SizedBox.shrink(),
           ),
           // Expanded обязателен: в Column без него ListView получает
           // бесконечную высоту и падает с ошибкой unbounded height.

@@ -24,9 +24,14 @@ final class PokemonListLoaded extends PokemonListState {
     required this.hasMore,
     this.isLoadingMore = false,
     this.loadMoreError,
+    this.fromCache = false,
   });
 
   final List<PokemonModel> items;
+
+  /// Хотя бы одна страница прочитана из локального хранилища, потому что сети
+  /// не было. Над списком плашка.
+  final bool fromCache;
 
   /// На сервере есть ещё страницы. У результатов поиска страниц нет.
   final bool hasMore;

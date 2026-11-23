@@ -106,5 +106,10 @@
     }
   },
   "errorBadResponse": "Сервер прислал непонятный ответ",
-  "actionRetry": "Повторить"
+  "actionRetry": "Повторить",
+  "actionOpenFavorites": "Избранное",
+  "actionAddFavorite": "Добавить в избранное",
+  "actionRemoveFavorite": "Убрать из избранного",
+  "favoritesEmpty": "В избранном пока пусто. Нажмите звезду на странице записи",
+  "cacheBanner": "Нет связи с сервером. Показаны сохранённые данные"
 }
