@@ -13,7 +13,8 @@ shared_preferences 2.5.6, path_provider 2.1.6, web 1.1.2.
 git switch -c my-l6 l6-storage
 flutter pub get
 flutter run -d chrome --web-port 8080     # браузер
-flutter run -d android                    # второй таргет: нужен Android SDK и эмулятор или телефон
+flutter devices                           # второй таргет: найти id эмулятора или телефона
+flutter run -d emulator-5554              # id из списка выше; нужен Android SDK
 ```
 
 `--web-port` нужен для браузера: без него порт каждый раз новый, а у нового адреса своё пустое хранилище.
