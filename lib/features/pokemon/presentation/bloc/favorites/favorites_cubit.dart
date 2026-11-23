@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pokedex/common/platform/export_result.dart';
 import 'package:pokedex/features/pokemon/domain/i_favorites_repository.dart';
 import 'package:pokedex/features/pokemon/domain/pokemon_model.dart';
 
@@ -32,4 +33,8 @@ class FavoritesCubit extends Cubit<List<PokemonModel>> {
     emit(next);
     await _repository.saveAll(next);
   }
+
+  /// Кнопка «Экспортировать». Результат одноразовый, его показывает
+  /// SnackBar, поэтому он возвращается экрану, а не кладётся в состояние.
+  Future<ExportResult> export() => _repository.export(state);
 }

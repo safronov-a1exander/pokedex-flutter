@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pokedex/common/platform/export_result.dart';
 import 'package:pokedex/common/widgets/app_scaffold.dart';
 import 'package:pokedex/features/pokemon/domain/pokemon_model.dart';
 import 'package:pokedex/features/pokemon/presentation/bloc/favorites/favorites_cubit.dart';
@@ -12,10 +13,19 @@ class FavoritesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppScaffold(
-      body: BlocBuilder<FavoritesCubit, List<PokemonModel>>(
-        builder: (context, items) => items.isEmpty
-            ? Center(child: Text(AppLocalizations.of(context).favoritesEmpty))
+    final l10n = AppLocalizations.of(context);
+    return BlocBuilder<FavoritesCubit, List<PokemonModel>>(
+      builder: (context, items) => AppScaffold(
+        actions: [
+          IconButton(
+            // Экспортировать пустой список незачем.
+            onPressed: items.isEmpty ? null : () => _export(context),
+            tooltip: l10n.actionExportFavorites,
+            icon: const Icon(Icons.file_download),
+          ),
+        ],
+        body: items.isEmpty
+            ? Center(child: Text(l10n.favoritesEmpty))
             : ListView.separated(
                 padding: const EdgeInsets.all(16),
                 itemCount: items.length,
@@ -25,5 +35,19 @@ class FavoritesScreen extends StatelessWidget {
               ),
       ),
     );
+  }
+
+  /// Результат показываем всегда, и неудачный тоже: молчать нельзя.
+  Future<void> _export(BuildContext context) async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final result = await context.read<FavoritesCubit>().export();
+    final message = switch (result) {
+      SavedTo(:final path) => l10n.exportSavedTo(path),
+      Downloaded() => l10n.exportDownloaded,
+      NotSupported() => l10n.exportNotSupported,
+      ExportFailed(:final reason) => l10n.exportFailed(reason),
+    };
+    messenger.showSnackBar(SnackBar(content: Text(message)));
   }
 }

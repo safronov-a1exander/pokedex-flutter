@@ -111,5 +111,25 @@
   "actionAddFavorite": "Добавить в избранное",
   "actionRemoveFavorite": "Убрать из избранного",
   "favoritesEmpty": "В избранном пока пусто. Нажмите звезду на странице записи",
-  "cacheBanner": "Нет связи с сервером. Показаны сохранённые данные"
+  "cacheBanner": "Нет связи с сервером. Показаны сохранённые данные",
+  "selectRecordHint": "Выберите запись в списке",
+  "actionExportFavorites": "Экспортировать избранное",
+  "exportSavedTo": "Файл сохранён: {path}",
+  "@exportSavedTo": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "exportDownloaded": "Файл отдан браузеру, он в загрузках",
+  "exportNotSupported": "На этой платформе экспорт файла недоступен",
+  "exportFailed": "Не удалось сохранить файл: {reason}",
+  "@exportFailed": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  }
 }

@@ -1,21 +1,25 @@
 # Pokédex на Flutter
 
 Шаблон курса кроссплатформенной разработки. Теги `w2-*` — каркас на моках с ПЗ2, тег `l3-network` — те же
-экраны на данных из [PokéAPI](https://pokeapi.co/), пример к ЛР3, тег `l6-storage` — хранилище, офлайн и
-избранное, пример к ЛР6.
+экраны на данных из [PokéAPI](https://pokeapi.co/), пример к ЛР3, тег `l6-storage` — хранилище, офлайн,
+избранное, адаптив и экспорт файла, пример к ЛР6.
 
 Flutter 3.47.3, Dart 3.13.3, flutter_bloc 9.1.1, go_router 18.0.1, dio 5.11.1, json_serializable 6.14.1,
-shared_preferences 2.5.6.
+shared_preferences 2.5.6, path_provider 2.1.6, web 1.1.2.
 
-## Тег l6-storage · хранилище на устройстве
+## Тег l6-storage · хранилище и платформа
 
 ```bash
 git switch -c my-l6 l6-storage
 flutter pub get
-flutter run -d chrome --web-port 8080
+flutter run -d chrome --web-port 8080     # браузер
+flutter run -d android                    # второй таргет: нужен Android SDK и эмулятор или телефон
 ```
 
 `--web-port` нужен для браузера: без него порт каждый раз новый, а у нового адреса своё пустое хранилище.
+
+Android-сборка в этом теге не проверялась: на машине, где собирался шаблон, нет Android SDK. Проверены web и
+`flutter analyze`.
 
 Что поменялось против `l3-network`: [сравнение на GitHub](https://github.com/safronov-a1exander/pokedex-flutter/compare/l3-network...l6-storage).
 
@@ -26,6 +30,10 @@ flutter run -d chrome --web-port 8080
 | Открываю с сетью, потом F12 → Network → Offline и перезагружаю | Тот же список и плашка «Показаны сохранённые данные» |
 | Без сети открываю избранное | Названия и типы, а не номера |
 | Без сети и без сохранённого (F12 → Application → Clear site data) | Ошибка с «Повторить», как в ЛР3 |
+| Растягиваю окно шире 840 | Список слева, справа «Выберите запись». Нажимаю карточку, деталь справа, список не пропадает |
+| Сужаю окно | Одна колонка: список, деталь открывается поверх, «назад» возвращает к списку |
+| В избранном жму «Экспортировать» в браузере | Скачивается `pokedex_favorites.csv`, внизу «Файл отдан браузеру» |
+| То же на Android или desktop | Файл в папке загрузок, внизу путь к нему |
 
 | Файл | Что делает |
 |---|---|
@@ -37,6 +45,11 @@ flutter run -d chrome --web-port 8080
 | `features/pokemon/data/pokemon_repository.dart` | Сеть ответила: сохраняет страницу. Нет сети или таймаут: читает сохранённую |
 | `features/pokemon/data/favorites_repository.dart` | Избранное целиком, без сети |
 | `features/pokemon/presentation/bloc/favorites/favorites_cubit.dart` | Избранное в корне: звезда на детали и экран избранного видят одно состояние |
+| `lib/common/layout/breakpoints.dart` | Порог 840 по ширине окна |
+| `lib/common/layout/adaptive_shell.dart` | Каркас для `ShellRoute`: в широком окне список слева, экран маршрута справа |
+| `lib/common/navigation/app_router.dart` | Список, деталь и избранное внутри `ShellRoute`; у детали ключ по номеру |
+| `lib/common/platform/file_export.dart` | Условный импорт: `file_export_web.dart` в браузере, `file_export_io.dart` на остальных |
+| `lib/common/platform/export_result.dart` | `SavedTo`, `Downloaded`, `NotSupported`, `ExportFailed` |
 
 В браузере всё лежит в `localStorage`: F12 → Application → Local Storage → `http://localhost:8080`, ключи
 `theme_mode`, `favorites`, `page_0_20`.

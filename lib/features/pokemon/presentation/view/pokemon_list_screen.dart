@@ -109,7 +109,13 @@ class _PokemonListState extends State<_PokemonList> {
       itemCount: state.items.length + (showFooter ? 1 : 0),
       separatorBuilder: (_, _) => const SizedBox(height: 12),
       itemBuilder: (context, index) => index < state.items.length
-          ? PokemonCard(pokemon: state.items[index])
+          ? PokemonCard(
+              pokemon: state.items[index],
+              // go, а не push: в широком окне новая запись заменяет
+              // открытую справа, а не ложится поверх неё. В узком под
+              // деталью всё равно окажется список: маршрут вложенный.
+              onTap: () => context.go(AppRoutes.detail(state.items[index].id)),
+            )
           : _Footer(state: state),
     );
   }

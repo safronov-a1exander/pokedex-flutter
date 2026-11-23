@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pokedex/common/widgets/app_scaffold.dart';
+import 'package:pokedex/common/layout/adaptive_shell.dart';
 import 'package:pokedex/features/pokemon/presentation/view/favorites_screen.dart';
 import 'package:pokedex/features/pokemon/presentation/view/pokemon_detail_screen.dart';
-import 'package:pokedex/features/pokemon/presentation/view/pokemon_list_screen.dart';
+import 'package:pokedex/features/pokemon/presentation/view/pokemon_home_screen.dart';
 import 'package:pokedex/l10n/app_localizations.dart';
 
 /// Адреса экранов. Строки путей собраны здесь, чтобы не расходиться по
@@ -33,29 +34,43 @@ abstract final class AppRouter {
     return GoRouter(
       initialLocation: AppRoutes.list,
       routes: [
-        GoRoute(
-          path: AppRoutes.list,
-          pageBuilder: (context, state) =>
-              _page(state, const PokemonListScreen()),
+        // Каркас: в широком окне список слева, экран маршрута справа. В узком
+        // только экран маршрута. Сами маршруты от ширины не зависят.
+        ShellRoute(
+          builder: (context, state, child) => AdaptiveShell(child: child),
           routes: [
             GoRoute(
-              path: 'favorites',
+              path: AppRoutes.list,
               pageBuilder: (context, state) =>
-                  _page(state, const FavoritesScreen()),
-            ),
-            // Вложенный маршрут: если открыть /pokemon/3 по ссылке, под
-            // деталью всё равно лежит список, и стрелка «назад» есть.
-            GoRoute(
-              path: 'pokemon/:id',
-              pageBuilder: (context, state) {
-                final id = int.tryParse(state.pathParameters['id']!);
-                return _page(
-                  state,
-                  id == null
-                      ? const _NotFoundScreen()
-                      : PokemonDetailScreen(id: id),
-                );
-              },
+                  _page(state, const PokemonHomeScreen()),
+              routes: [
+                // Избранное тоже внутри каркаса: в широком окне оно справа от
+                // списка. Снаружи каркаса нельзя: push детали с такого экрана
+                // ломает вложенный Navigator, на web получается белый экран.
+                GoRoute(
+                  path: 'favorites',
+                  pageBuilder: (context, state) =>
+                      _page(state, const FavoritesScreen()),
+                ),
+                // Вложенный маршрут: если открыть /pokemon/3 по ссылке, под
+                // деталью всё равно лежит список, и стрелка «назад» есть.
+                GoRoute(
+                  path: 'pokemon/:id',
+                  pageBuilder: (context, state) {
+                    final id = int.tryParse(state.pathParameters['id']!);
+                    return _page(
+                      state,
+                      id == null
+                          ? const _NotFoundScreen()
+                          // Ключ по номеру обязателен. В широком окне
+                          // go с /pokemon/1 на /pokemon/5 переиспользует ту
+                          // же страницу, и без ключа Bloc детали остался бы
+                          // от прошлой записи.
+                          : PokemonDetailScreen(key: ValueKey(id), id: id),
+                    );
+                  },
+                ),
+              ],
             ),
           ],
         ),

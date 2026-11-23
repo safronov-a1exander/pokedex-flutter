@@ -11,18 +11,21 @@ import 'package:pokedex/l10n/app_localizations.dart';
 /// Карточка списка: картинка слева, номер, имя и типы справа. Нажатие
 /// открывает деталь записи.
 class PokemonCard extends StatelessWidget {
-  const PokemonCard({super.key, required this.pokemon});
+  const PokemonCard({super.key, required this.pokemon, this.onTap});
 
   final PokemonModel pokemon;
+
+  /// Что делать по нажатию. Без него карточка кладёт деталь поверх текущего
+  /// экрана.
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     return CardSurface(
-      // Переход вызывает сам виджет. push кладёт деталь поверх списка, и
-      // «назад» вернёт к нему.
-      onTap: () => context.push(AppRoutes.detail(pokemon.id)),
+      // push кладёт деталь поверх текущего экрана, и «назад» вернёт к нему.
+      onTap: onTap ?? () => context.push(AppRoutes.detail(pokemon.id)),
       child: Row(
         children: [
           PokemonImage(pokemon: pokemon, size: 80, spriteSize: 64),
